@@ -1,0 +1,18 @@
+workflow:
+  name: demo
+  context:
+    key1: value1
+    key2: value2
+  effects:
+    - name: effect1
+      class: Print
+      config:
+        value: Hello,
+    - name: effect2
+      class: Print
+      config:
+        value: World!
+    - name: effect3
+      class: Error
+      config:
+        value: World!
