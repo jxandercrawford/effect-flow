@@ -19,7 +19,7 @@ def _generate_string(length: int) -> str:
     return "".join(random.choice(chars) for _ in range(length))
 
 class Effect(ABC):
-    def __init__(self, id: Optional[str] = None):
+    def __init__(self, id: Optional[str] = None, *args, **kwargs):
         self._id = id or _generate_string(ID_LENGTH)
 
     @abstractmethod

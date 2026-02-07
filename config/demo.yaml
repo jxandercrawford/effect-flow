@@ -4,11 +4,34 @@ workflow:
     key1: value1
     key2: value2
   effects:
-    - name: effect1
+    - name: print_hello
       class: effects.print.Print
       config:
-        value: Hello,
-    - name: effect2
+        value:
+          default: Hello,
+          context: null
+    - name: print_world
       class: effects.print.Print
       config:
-        value: World!
+        value:
+          default: World!
+          context: null
+    - name: list_files
+      class: effects.list_files.ListFiles
+      config:
+        path:
+          default: /Users/jxan/Documents/development/effect-flow/effects/*.py
+          context: null
+    - name: print_files
+      class: effects.print.Print
+      config:
+        value:
+          default: "No Files!"
+          context: list_files.files
+    - name: touch_files
+      class: effects.touch_file.TouchFile
+      config:
+        path:
+          default: null
+          context: list_files.files
+

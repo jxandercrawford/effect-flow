@@ -1,5 +1,6 @@
 
 from lib.effect import Effect, Context
+from lib.runtime import EffectBinding
 from abc import ABC, abstractmethod
 from typing import Optional, Any, List
 
@@ -71,17 +72,20 @@ class ExecutionNative(Effect):
 
 class ExecutionBuilderNative:
 
-    def __init__(self, steps: Optional[List[Effect]] = []):
+    def __init__(self, steps: Optional[List[EffectBinding]] = []):
         self.__steps = steps
 
-    def add_step(self, effect: Effect):
+    def add_step(self, effect: EffectBinding):
         self.__steps.append(effect)
+
+    def __compile_effect(self, binding: EffectBinding, context: Context) -> Effect:
+        return binding.init(context)
 
     def compile(self):
         def f(context: Optional[Context] = {}, *args, **kwargs):
             data = Either(right=context)
             for step in self.__steps:
-                data = data.map(step.execute)
+                data = data.map(lambda x: self.__compile_effect(step, x).execute(x))
                 data.raise_left()
             return data.get()
         return ExecutionNative(f)
