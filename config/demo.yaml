@@ -5,14 +5,10 @@ workflow:
     key2: value2
   effects:
     - name: effect1
-      class: Print
+      class: effects.print.Print
       config:
         value: Hello,
     - name: effect2
-      class: Print
-      config:
-        value: World!
-    - name: effect3
-      class: Error
+      class: effects.print.Print
       config:
         value: World!

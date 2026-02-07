@@ -1,11 +1,14 @@
 
 from typing import Optional, Dict, Tuple, Any, List
-from effects.effect import Effect, _generate_string, Context
-from effects.executor import ExecutionBuilderNative, ExecutionNative
+from lib.effect import Effect, _generate_string, Context
+from lib.executor import ExecutionBuilderNative, ExecutionNative
 from dataclasses import dataclass
 import yaml
-
+import importlib
+import pkgutil
+from pathlib import Path
 from dataclasses import dataclass, field
+import sys
 
 
 class EffectRegistry:
@@ -15,9 +18,9 @@ class EffectRegistry:
 
     def register(self, name: str, effect: Effect):
         self.__effects[name] = effect
-        
+
     def get(self, key: str) -> Effect:
-        return self.__effects.get(key)
+        return self.__effects[key]
 
 
 @dataclass
@@ -49,6 +52,34 @@ class ConfigParser:
             context=workflow_config.get("context", {}),
             effects=[self.__parse_effect(d) for d in workflow_config.get("effects", [])]
         )
+
+
+import importlib
+from typing import Iterable
+
+
+def register_effect_plugins(effects: List[str], registry):
+    for entry in effects:
+        try:
+            module_path, class_name = entry.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            effect_class = getattr(module, class_name)
+            if not issubclass(effect_class, Effect):
+                raise ValueError(f"{entry} is not an Effect type.")
+            registry.register(entry, effect_class)
+
+        except ValueError:
+            raise ValueError(
+                f"Invalid effect path '{entry}'. Expected 'module.ClassName'"
+            )
+        except ImportError as e:
+            raise ImportError(f"Could not import module '{module_path}'") from e
+        except AttributeError as e:
+            raise AttributeError(
+                f"Module '{module_path}' has no class '{class_name}'"
+            ) from e
+
+
 
 def read_yaml(path, parser) -> WorkflowDefinition:
     with open(path, "r") as fp:

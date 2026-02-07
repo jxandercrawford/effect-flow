@@ -1,5 +1,5 @@
 
-from effects.effect import Effect, Context
+from lib.effect import Effect, Context
 from abc import ABC, abstractmethod
 from typing import Optional, Any, List
 
