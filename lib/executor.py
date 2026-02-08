@@ -1,62 +1,8 @@
 
-from lib.effect import Effect, Context
-from lib.runtime import EffectBinding
+from lib.effect import Effect, Context, EffectBinding
+from lib.base import Either
 from abc import ABC, abstractmethod
 from typing import Optional, Any, List
-
-class Monoid(ABC):
-
-    @abstractmethod
-    def map(self, f):
-        pass
-
-    @abstractmethod
-    def flat_map(self, f):
-        pass
-
-    @abstractmethod
-    def get(self):
-        pass
-
-
-class Either(Monoid):
-
-    def __init__(self, left: Optional[Any] = None, right: Optional[Any] = None):
-        self.__left = left
-        self.__right = right
-
-    def __str__(self):
-        return f"Either({self.__left},{self.__right})"
-
-    def get(self):
-        return self.__right
-
-    def map(self, f):
-        if self.__left is not None:
-            return Either(left=self.__left, right=self.__right)
-        try:
-            return Either(right=f(self.__right))
-        except Exception as err:
-            return Either(left=err)
-
-    def flat_map(self, f):
-        if self.__left is not None:
-            return Either(left=self.__left, right=self.__right)
-        return f(self.__right)
-
-    @property
-    def left(self) -> Any:
-        return self.__left
-
-    @property
-    def right(self) -> Any:
-        return self.__right
-
-    def raise_left(self):
-        if isinstance(self.__left, Exception):
-            raise self.__left
-        elif self.__left is not None:
-            raise RuntimeError(self.__left)
 
 
 class ExecutionNative(Effect):

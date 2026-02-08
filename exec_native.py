@@ -1,6 +1,7 @@
 
 from lib.executor import ExecutionBuilderNative
-from lib.runtime import ConfigParser, EffectRegistry, read_yaml, build_workflow, register_effect_plugins
+from lib.registry import EffectRegistry, register_effect_plugins
+from lib.definition import ConfigParser, read_yaml, build_workflow
 import argparse
 import os
 
@@ -23,7 +24,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     registry = EffectRegistry()
-    register_effect_plugins(args.effects.strip().split(","), registry)
+
+    for effect_path in args.effects.strip().split(","):
+        registry = register_effect_plugins(effect_path, registry)
+
     parser = ConfigParser(registry)
 
     builder = ExecutionBuilderNative()
