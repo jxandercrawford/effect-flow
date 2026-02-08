@@ -10,6 +10,6 @@ class ListFiles(Effect):
         self.__value = kwargs.get("path")
 
     def execute(self, context: Context, *args, **kwargs):
-        context[self._id] = {}
-        context[self._id]["files"] = glob(self.__value)
+        context[self._eid] = {}
+        context[self._eid]["files"] = glob(self.__value)
         return context

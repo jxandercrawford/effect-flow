@@ -1,6 +1,6 @@
-
 from abc import ABC, abstractmethod
-from typing import Optional, Any, List
+from typing import Any, List, Optional, Callable
+
 
 class Monad(ABC):
 
@@ -34,11 +34,11 @@ class Either(Monad):
         self.raise_left()
         return self.__right
 
-    def is_left(self) -> bool:
-        return self.__left is not None
+    def get_or_else(self, default: Any) -> Any:
+        return self.__right if self.is_right() else default
 
-    def is_right(self) -> bool:
-        return self.__right is not None
+    def get_or_else_get(self, _else: Callable[[], Any]) -> Any:
+        return self.__right if self.is_right() else _else()
 
     def map(self, f):
         if self.is_left():
@@ -55,6 +55,19 @@ class Either(Monad):
             return f(self.__right)
         except Exception as err:
             return Either(left=err)
+
+    @staticmethod
+    def try_of(f: Callable[[], Any]) -> 'Either':
+        try:
+            return Either(right=f())
+        except Exception as err:
+            return Either(left=err)
+
+    def is_left(self) -> bool:
+        return self.__left is not None
+
+    def is_right(self) -> bool:
+        return self.__right is not None
 
     @property
     def left(self) -> Any:

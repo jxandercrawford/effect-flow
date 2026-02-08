@@ -1,7 +1,8 @@
-
-from typing import Optional, Dict
-from lib.effect import Effect
 from importlib import import_module
+from typing import Dict, Optional
+
+from lib.effect import Effect
+
 
 class EffectRegistry:
 

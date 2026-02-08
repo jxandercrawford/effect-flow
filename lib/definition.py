@@ -1,16 +1,14 @@
-
-from typing import Optional, Dict, Tuple, Any, List
-from lib.effect import Effect, Context, EffectBinding
-from lib.registry import EffectRegistry
-from dataclasses import dataclass
-import yaml
 import importlib
 import pkgutil
-from pathlib import Path
-from dataclasses import dataclass, field
 import sys
-import importlib
-from typing import Iterable
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple
+
+import yaml
+
+from lib.effect import Context, Effect, EffectBinding
+from lib.registry import EffectRegistry
 
 
 @dataclass
@@ -39,7 +37,9 @@ class ConfigParser:
         return WorkflowDefinition(
             name=workflow_config.get("name"),
             context=workflow_config.get("context", {}),
-            effects=[self.__parse_effect(d) for d in workflow_config.get("effects", [])]
+            effects=[
+                self.__parse_effect(d) for d in workflow_config.get("effects", [])
+            ],
         )
 
 
@@ -48,7 +48,9 @@ def read_yaml(path: str, parser: ConfigParser) -> WorkflowDefinition:
         return parser.parse(yaml.safe_load(fp))
 
 
-def build_workflow(definition: WorkflowDefinition, builder: "ExecutionBuilderNative") -> Tuple[Context, "ExecutionNative"]:
+def build_workflow(
+    definition: WorkflowDefinition, builder: "ExecutionBuilderNative"
+) -> Tuple[Context, "ExecutionNative"]:
     for effect in definition.effects:
         builder.add_step(effect)
     return (definition.context, builder.compile())

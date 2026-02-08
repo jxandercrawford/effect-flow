@@ -9,6 +9,6 @@ class Print(Effect):
 
     def execute(self, context: Context, *args, **kwargs) -> Context:
         print(self.__value)
-        context[self._id] = {}
-        context[self._id]["value"] = self.__value
+        context[self._eid] = {}
+        context[self._eid]["value"] = self.__value
         return context

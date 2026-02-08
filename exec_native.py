@@ -1,10 +1,9 @@
-
-from lib.executor import ExecutionBuilderNative
-from lib.registry import EffectRegistry, register_effect_plugins
-from lib.definition import ConfigParser, read_yaml, build_workflow
 import argparse
 import os
 
+from lib.definition import ConfigParser, build_workflow, read_yaml
+from lib.executor import ExecutionBuilderNative
+from lib.registry import EffectRegistry, register_effect_plugins
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Effect Flow Native Executor")
@@ -13,7 +12,7 @@ if __name__ == "__main__":
         "--config",
         type=str,
         required=True,
-        help="Path to workflow YAML config file"
+        help="Path to workflow YAML config file",
     )
     parser.add_argument(
         "--effects",
@@ -35,4 +34,4 @@ if __name__ == "__main__":
 
     context, executor = build_workflow(definition, builder)
 
-    executor.execute(context)
+    print(executor.execute(context))

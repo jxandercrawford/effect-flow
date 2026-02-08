@@ -1,19 +1,11 @@
-
-from lib.effect import Effect, Context, EffectBinding
-from lib.base import Either
 from abc import ABC, abstractmethod
-from typing import Optional, Any, List
+from typing import Any, List, Optional, Callable
+from lib.base import Either
+from lib.effect import Effect, EffectBinding, FunctionEffect
+from lib.context import Context
 
 
-class ExecutionNative(Effect):
-
-    def __init__(self, f, context: Optional[Context] = {}, name: Optional[str] = "abc"):
-        self.__f = f
-        self.__name = name
-        self.__context = context
-
-    def execute(self, context: Context, *args, **kwargs) -> Context:
-        return self.__f(context)
+ExecutionNative = FunctionEffect
 
 
 class ExecutionBuilderNative:
@@ -28,10 +20,17 @@ class ExecutionBuilderNative:
         return binding.init(context)
 
     def compile(self):
-        def f(context: Optional[Context] = {}, *args, **kwargs):
+        def f(context: Optional[Context] = {}):
             data = Either(right=context)
             for step in self.__steps:
-                data = data.map(lambda x: self.__compile_effect(step, x).execute(x))
-                data.raise_left()
+                def run_step(ctx, binding=step):
+                    try:
+                        effect = self.__compile_effect(binding, ctx)
+                        return Either.try_of(lambda : effect.execute(ctx))
+                    except Exception as e:
+                        raise RuntimeError(f"Effect '{binding.name}' failed: {e}") from e
+                data = data.flat_map(run_step)
+                if data.is_left():
+                    return f"Error at '{step}': {data.left}"
             return data.get()
         return ExecutionNative(f)

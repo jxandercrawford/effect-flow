@@ -8,4 +8,4 @@ class Error(Effect):
         self.__value = kwargs.get("value")
 
     def execute(self, context: Context, *args, **kwargs) -> Context:
-        raise RuntimeError(f"Error effect ({self._id}) executed.")
+        raise RuntimeError(f"Error effect ({self._eid}) executed.")
